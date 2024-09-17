@@ -15,29 +15,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-.treeview {
-  font-family: Arial, sans-serif;
-}
-
-.treeview span {
-  cursor: pointer;
-  display: block;
-  padding: 4px 0;
-}
-
-.treeview ul {
-  list-style-type: none;
-  padding-left: 16px;
-}
-.file-viewer {
-  padding: 16px;
-}
-
-.file-viewer img {
-  max-width: 100%;
-  height: auto;
-}
-
-.file-viewer pre {
-  white-space: pre-wrap;
-}

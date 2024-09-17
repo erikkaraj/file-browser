@@ -1,80 +1,64 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Editor } from "@monaco-editor/react";
 
-type FileViewerProps = {
-  file: File | null;
-};
+interface FileViewerProps {
+  file: File;
+}
 
 const FileViewer: React.FC<FileViewerProps> = ({ file }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState<string>("");
+  const [content, setContent] = useState<string | ArrayBuffer | null>(null);
+  const [fileURL, setFileURL] = useState<string | null>(null); // For image files
 
   useEffect(() => {
-    if (file) {
+    if (!file || file.size === 0) {
+      setContent(null);
+      setFileURL(null);
+      return;
+    }
+
+    if (file.type === "image/png") {
+      const url = URL.createObjectURL(file);
+      setFileURL(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setContent(e.target?.result as string);
+        const result = e.target?.result as string;
+        setContent(result);
       };
 
-      if (file.type === "image/png") {
-        // Handle image display directly with URL.createObjectURL
-        setContent("");
-      } else {
+      if (file.type === "application/json" || file.type === "text/plain") {
         reader.readAsText(file);
       }
     }
   }, [file]);
 
-  const handleEdit = () => {
-    setIsEditing(!isEditing);
-  };
+  if (file.type === "image/png") {
+    return (
+      <img
+        src={fileURL || ""}
+        alt={file.name}
+        className="max-w-full max-h-screen"
+      />
+    );
+  }
+  if (file.type === "text/plain" || file.type === "application/json") {
+    console.log(file, "file");
 
-  const handleSave = () => {
-    if (file) {
-      // Create a new Blob and simulate a file save
-      const newFile = new File([content], file.name, { type: file.type });
-      console.log("File saved:", newFile);
-      // Here you might want to handle saving the file to a server or other storage
-    }
-    setIsEditing(false);
-  };
-
-  if (!file) {
-    return <div className="file-viewer">No file selected</div>;
+    return (
+      <div className="w-full h-full">
+        <Editor
+          height="80vh"
+          language={file.type === "application/json" ? "json" : "text"}
+          value={content as string}
+          onChange={(value) => setContent(value || "")}
+          options={{ readOnly: false }}
+        />
+      </div>
+    );
   }
 
-  return (
-    <div className="file-viewer">
-      {file.type === "image/png" ? (
-        <img
-          src={URL.createObjectURL(file)}
-          alt="PNG"
-          className="w-full h-auto"
-        />
-      ) : (
-        <div>
-          {isEditing ? (
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="w-full h-64 border p-2"
-            />
-          ) : (
-            <pre className="whitespace-pre-wrap">{content}</pre>
-          )}
-          {["text/plain", "application/json"].includes(file.type) && (
-            <div>
-              <button
-                onClick={handleEdit}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-              >
-                {isEditing ? "Save" : "Edit"}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+  return <div>Unsupported file type</div>;
 };
 
 export default FileViewer;

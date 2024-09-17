@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { FileNode, initialTree } from "../utils/fileUtils";
+import { useRecoilState } from "recoil";
+import { treeState, useTreeActions } from "../state/treeAtom";
+import { FileNode } from "../utils/fileUtils";
 import { ArrowIcon, FileIcon, FolderIcon } from "../utils/svgIcons";
 import { FileCreationModal } from "../modal/FileCreationModal";
 import { FolderCreationModal } from "../modal/FolderCreationModal";
@@ -8,9 +10,11 @@ type TreeViewProps = {
   onSelectFile: (file: File) => void;
 };
 const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
-  const [tree, setTree] = useState<FileNode[]>(initialTree);
+  const [tree] = useRecoilState(treeState);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState("");
+
+  const { handleDelete } = useTreeActions();
 
   const toggleNode = (path: string) => {
     setExpandedNodes((prev) => {
@@ -24,96 +28,18 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
     });
   };
 
-  const handleCreate = (
-    path: string,
-    type: "file" | "folder",
-    name: string
-  ) => {
-    if (type === "file") {
-      // Create a new file at the given path
-      const newFile = {
-        name,
-        type: "file",
-        content: type === "file" && name.endsWith(".txt") ? "" : "{}", // Default content for text or JSON
-      };
-      addNodeToPath(path, newFile, type);
-    } else if (type === "folder") {
-      // Create a new folder at the given path
-      const newFolder = {
-        name,
-        type: "folder",
-        children: [],
-      };
-      addNodeToPath(path, newFolder, type);
-    }
-  };
-
-  const addNodeToPath = (
-    path: string,
-    newNode: {
-      name: string;
-      type: string;
-      content?: string;
-      children?: never[];
-    },
-    type: "file" | "folder"
-  ) => {
-    const addNode = (
-      nodes: FileNode[],
-      pathSegments: string[],
-      newNode: FileNode
-    ): FileNode[] => {
-      if (pathSegments.length === 0) {
-        return [...nodes, newNode];
-      }
-      return nodes.map((node) =>
-        node.name === pathSegments[0]
-          ? {
-              ...node,
-              children: addNode(
-                node.children || [],
-                pathSegments.slice(1),
-                newNode
-              ),
-            }
-          : node
-      );
-    };
-
-    setTree(addNode(tree, path.split("/").filter(Boolean), newNode));
-  };
-
-  const handleDelete = (path: string) => {
-    const removeNode = (
-      nodes: FileNode[],
-      pathSegments: string[]
-    ): FileNode[] => {
-      if (pathSegments.length === 0) {
-        return [];
-      }
-      return nodes
-        .map((node) =>
-          node.name === pathSegments[0]
-            ? {
-                ...node,
-                children: removeNode(
-                  node.children || [],
-                  pathSegments.slice(1)
-                ),
-              }
-            : node
-        )
-        .filter(
-          (node) => node.name !== pathSegments[0] || pathSegments.length > 1
-        );
-    };
-
-    setTree(removeNode(tree, path.split("/").filter(Boolean)));
-  };
-
   const handleFileClick = (node: FileNode) => {
-    if (node.type === "file") {
-      const file = new File([node.name], node.name, { type: "text/plain" });
+    if (node.type !== "folder") {
+      // const file = new File([node.content || ""], node.name, {
+      //   type: node.type,
+      // });
+      const blobContent = new Blob([node.content || ""], {
+        type: node.type,
+      });
+      const file = new File([blobContent], node.name, {
+        type: blobContent.type,
+      });
+      console.log(file);
       onSelectFile(file);
     }
   };
@@ -156,45 +82,30 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
   };
 
   const [isModalOpen, setModalOpen] = useState(false);
-  const [targetPath, setTargetPath] = useState<string | null>(null);
+  const [isFolderModalOpen, setFolderModalOpen] = useState(false);
+  const [targetPath, setTargetPath] = useState<string>("");
 
   const handleCreateFileModal = (path: string) => {
     setTargetPath(path);
     setModalOpen(true);
   };
 
-  const handleCreateFile = (fileName: string, fileType: string) => {
-    if (targetPath) {
-      const fullFileName = `${fileName}.${fileType}`;
-      handleCreate(targetPath, "file", fullFileName); // Use your existing create file logic here
-    }
-  };
-
-  const [isFolderModalOpen, setFolderModalOpen] = useState(false);
-  const [targetFolderPath, setTargetFolderPath] = useState<string | null>(null);
-
   const handleCreateFolderModal = (path: string) => {
-    setTargetFolderPath(path);
+    setTargetPath(path);
     setFolderModalOpen(true);
-  };
-
-  const handleCreateFolder = (folderName: string) => {
-    if (targetFolderPath) {
-      handleCreate(targetFolderPath, "folder", folderName);
-    }
   };
 
   const renderTree = (nodes: FileNode[], path = "") => (
     <>
       <FileCreationModal
         isOpen={isModalOpen}
+        targetPath={targetPath}
         onClose={() => setModalOpen(false)}
-        onCreate={handleCreateFile}
       />
       <FolderCreationModal
         isOpen={isFolderModalOpen}
+        targetPath={targetPath}
         onClose={() => setFolderModalOpen(false)}
-        onCreate={handleCreateFolder}
       />
       <ul className="list-none pl-4">
         {nodes.map((node) => {

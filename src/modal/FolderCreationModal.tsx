@@ -1,22 +1,24 @@
 import React, { useState } from "react";
 import { Dialog } from "@headlessui/react";
+import { useTreeActions } from "../state/treeAtom";
 
 interface FolderCreationModalProps {
   isOpen: boolean;
+  targetPath: string;
   onClose: () => void;
-  onCreate: (folderName: string) => void;
 }
 
 export const FolderCreationModal: React.FC<FolderCreationModalProps> = ({
   isOpen,
+  targetPath,
   onClose,
-  onCreate,
 }) => {
   const [folderName, setFolderName] = useState("");
+  const { handleCreate } = useTreeActions();
 
-  const handleCreate = () => {
+  const handleCreateFolder = () => {
     if (folderName.trim()) {
-      onCreate(folderName);
+      handleCreate(targetPath, "folder", folderName);
       setFolderName("");
       onClose();
     }
@@ -29,9 +31,7 @@ export const FolderCreationModal: React.FC<FolderCreationModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center"
     >
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <Dialog.Title className="text-lg font-semibold mb-4">
-          Create a New Folder
-        </Dialog.Title>
+        <div className="text-lg font-semibold mb-4">Create a New Folder</div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Folder Name:</label>
           <input
@@ -50,7 +50,7 @@ export const FolderCreationModal: React.FC<FolderCreationModalProps> = ({
             Cancel
           </button>
           <button
-            onClick={handleCreate}
+            onClick={handleCreateFolder}
             className="px-4 py-2 bg-blue-500 text-white rounded-md"
           >
             Create

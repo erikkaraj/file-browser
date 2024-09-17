@@ -1,34 +1,37 @@
 import React, { useState } from "react";
 import { Dialog } from "@headlessui/react";
+import { useTreeActions } from "../state/treeAtom";
 
 interface FileCreationModalProps {
   isOpen: boolean;
+  targetPath: string;
   onClose: () => void;
-  onCreate: (fileName: string, fileType: string, fileContent?: File) => void;
 }
 
 export const FileCreationModal: React.FC<FileCreationModalProps> = ({
   isOpen,
+  targetPath,
   onClose,
-  onCreate,
 }) => {
-  const [fileName, setFileName] = useState("");
-  const [fileType, setFileType] = useState("txt");
-  const [fileContent, setFileContent] = useState<File | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const { handleCreate } = useTreeActions();
 
-  const handleCreate = () => {
-    if (fileName.trim()) {
-      onCreate(fileName, fileType, fileContent || undefined);
-      setFileName("");
-      setFileContent(null);
+  const handleCreateFile = () => {
+    if (uploadedFile) {
+      handleCreate(
+        targetPath,
+        uploadedFile.type,
+        uploadedFile.name,
+        uploadedFile
+      );
+      setUploadedFile(null);
       onClose();
     }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFileContent(e.target.files[0]);
-      setFileName(e.target.files[0].name.split(".")[0]); // Use the uploaded file's name without extension
+      setUploadedFile(e.target.files[0]);
     }
   };
 
@@ -39,44 +42,16 @@ export const FileCreationModal: React.FC<FileCreationModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center"
     >
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-        <div className="text-lg font-semibold mb-4">Create a New File</div>
+        <div className="text-lg font-semibold mb-4">Upload a New File</div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">File Type:</label>
-          <select
-            value={fileType}
-            onChange={(e) => setFileType(e.target.value)}
+          <label className="block text-sm font-medium mb-1">Upload File:</label>
+          <input
+            type="file"
+            accept=".png, .txt, .json"
+            onChange={handleFileUpload}
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
-          >
-            <option value="txt">Text File (.txt)</option>
-            <option value="json">JSON File (.json)</option>
-            <option value="png">Image File (.png)</option>
-          </select>
+          />
         </div>
-
-        {fileType === "png" ? (
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">
-              Upload Image:
-            </label>
-            <input
-              type="file"
-              accept=".png"
-              onChange={handleFileUpload}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-        ) : (
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">File Name:</label>
-            <input
-              type="text"
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="Enter file name"
-            />
-          </div>
-        )}
 
         <div className="flex justify-end space-x-2">
           <button
@@ -86,10 +61,11 @@ export const FileCreationModal: React.FC<FileCreationModalProps> = ({
             Cancel
           </button>
           <button
-            onClick={handleCreate}
+            onClick={handleCreateFile}
             className="px-4 py-2 bg-blue-500 text-white rounded-md"
+            disabled={!uploadedFile}
           >
-            Create
+            Upload
           </button>
         </div>
       </div>
