@@ -1,46 +1,124 @@
-# Getting Started with Create React App
+# Simple Web File Browser
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Project Overview
 
-## Available Scripts
+This project is a **simple web file browser** that allows users to **create, view, and delete** files and folders. The file browser is displayed as an expandable **treeview** on the left side, with a **viewer/editor** on the right side to display and optionally edit supported files.
 
-In the project directory, you can run:
+Supported file types:
 
-### `npm start`
+- PNG (image viewer)
+- TXT (text editor)
+- JSON (JSON editor)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Users can create new files and folders, delete existing ones, and filter files in the treeview. The application has been built using **React**, **TypeScript**, **Tailwind CSS**, and **HeadlessUI**, with unit tests written in **Jest**.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Features
 
-### `npm test`
+- **Treeview**: An expandable tree initialized with the `public/`, `server/`, and `src/` folders.
+- **Viewer/Editor**: Displays content on the right side when a file is selected.
+  - PNG: Displays the image.
+  - TXT/JSON: Displays content with an optional edit button.
+- **Create/Delete Functionality**:
+  - Add file and folder buttons on folder hover.
+  - Delete button on file and folder hover.
+- **File/Folder Click**:
+  - Clicking a folder shows subfolders and files.
+  - Clicking a file opens it in the viewer/editor.
+- **Filter**: Input field above the treeview for filtering files.
+- **Icons**: Folder and file icons for better clarity.
+- **Modals**:
+  - File and folder creation modals.
+  - Conditional file upload for PNG files.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Tech Stack
 
-### `npm run build`
+- **React**: UI development.
+- **TypeScript**: Type safety and project scalability.
+- **Tailwind CSS**: For styling the UI.
+- **HeadlessUI**: To implement modals and other interactive components.
+- **Jest**: For unit testing the components and functionalities.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Setup Instructions
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Prerequisites
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Node.js (v14 or later)
+- npm or yarn
 
-### `npm run eject`
+### Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. Clone the repository:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   ```bash
+   git clone https://github.com/your-username/simple-web-file-browser.git
+   cd simple-web-file-browser
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+2. Install the dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Running the Project
 
-## Learn More
+To run the project locally:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm start
+# or
+yarn start
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+The project will start on `http://localhost:3000`.
+
+### Running Tests
+
+To run the unit tests:
+
+```bash
+npm test
+# or
+yarn test
+```
+
+### Building for Production
+
+To build the project for production:
+
+```bash
+npm run build
+# or
+yarn build
+```
+
+The build files will be generated in the `build/` directory.
+
+## Design Decisions
+
+- **Treeview Implementation**: The file tree is dynamically rendered from an initial set of folders and files, with expand/collapse functionality. Only the hovered folder or file displays the action buttons.
+- **File/Folder Creation**: Modal-based interface for creating files and folders, improving user experience.
+- **Dynamic File Type Handling**: The modal dynamically adapts based on the file type (text input for TXT/JSON, file upload for PNG).
+- **File Uploads**: PNG files are uploaded via an input field, while TXT and JSON files are created using text input.
+
+## To-Do/Next Steps
+
+- [ ] Expand JSON and TXT editing capabilities.
+- [ ] Improve filtering by handling large datasets more efficiently.
+- [ ] Add more unit tests for edge cases and complex behaviors.
+- [ ] Potential improvements to UI and UX, like better error handling or drag-and-drop file creation.
+
+## Deployment
+
+You can deploy the project using any platform that supports static file hosting (e.g., Netlify, Vercel, or GitHub Pages).
+
+**Steps for Deployment**:
+
+1. Build the project:
+   ```bash
+   npm run build
+   # or
+   yarn build
+   ```
+2. Deploy the contents of the `build/` folder to your preferred platform.
