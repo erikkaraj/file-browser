@@ -9,7 +9,7 @@ interface FileViewerProps {
 const FileViewer: React.FC<FileViewerProps> = ({ file, targetPath }) => {
   const [content, setContent] = useState<string | ArrayBuffer | null>(null);
   const [disableButton, setDisableButton] = useState<boolean>(false);
-  const [fileURL, setFileURL] = useState<string | null>(null); // For image files
+  const [fileURL, setFileURL] = useState<string | null>(null);
   const { handleUpdate } = useTreeActions();
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const FileViewer: React.FC<FileViewerProps> = ({ file, targetPath }) => {
               data-testid="text-editor"
               value={(content as string) || ""}
               onChange={(e) => setContent(e.target.value || "")}
-              readOnly={false} // Ensure editor is editable
+              readOnly={false}
             />
           </div>
         </div>

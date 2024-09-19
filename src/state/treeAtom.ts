@@ -127,7 +127,6 @@ export const useTreeActions = () => {
       type,
       ...(type !== "folder" ? { content: file } : { children: [] }),
     };
-    console.log(newNode, "newNode");
 
     setTree((prevTree) =>
       addNodeToPath(prevTree, path.split("/").filter(Boolean), newNode)
