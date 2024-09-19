@@ -26,6 +26,7 @@ export const FolderCreationModal: React.FC<FolderCreationModalProps> = ({
 
   return (
     <Dialog
+      data-testid={`folder-modal-${targetPath}`}
       open={isOpen}
       onClose={onClose}
       className="fixed inset-0 z-50 flex items-center justify-center"
@@ -46,6 +47,7 @@ export const FolderCreationModal: React.FC<FolderCreationModalProps> = ({
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-500 text-white rounded-md"
+            data-testid={"close-folder-modal"}
           >
             Cancel
           </button>

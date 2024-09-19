@@ -1,5 +1,3 @@
-// src/utils/svgIcons.tsx
-
 import React from "react";
 
 // Arrow Icon
@@ -47,5 +45,21 @@ export const FileIcon: React.FC = () => (
     strokeLinejoin="round"
   >
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-4-4z" />
+  </svg>
+);
+
+// Minus Icon
+export const MinusIcon: React.FC = () => (
+  <svg
+    className="w-4 h-4"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="gray"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );

@@ -40,11 +40,11 @@ export const FileCreationModal: React.FC<FileCreationModalProps> = ({
       open={isOpen}
       onClose={onClose}
       className="fixed inset-0 z-50 flex items-center justify-center"
+      data-testid={`file-modal-${targetPath}`}
     >
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <div className="bg-white p-6 rounded-lg shadow-all max-w-md w-full">
         <div className="text-lg font-semibold mb-4">Upload a New File</div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">Upload File:</label>
           <input
             type="file"
             accept=".png, .txt, .json"
@@ -57,6 +57,7 @@ export const FileCreationModal: React.FC<FileCreationModalProps> = ({
           <button
             onClick={onClose}
             className="px-4 py-2 bg-red-500 text-white rounded-md"
+            data-testid={"close-file-modal"}
           >
             Cancel
           </button>

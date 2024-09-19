@@ -79,16 +79,42 @@ export const treeActions = selector({
         );
     };
 
+    const updateNodeInPath = (
+      nodes: FileNode[],
+      pathSegments: string[],
+      updatedNode: Partial<FileNode>
+    ): FileNode[] => {
+      if (pathSegments.length === 0) {
+        return nodes;
+      }
+      return nodes.map((node) =>
+        node.name === pathSegments[0]
+          ? pathSegments.length === 1
+            ? { ...node, ...updatedNode } // Update the node here
+            : {
+                ...node,
+                children: updateNodeInPath(
+                  node.children || [],
+                  pathSegments.slice(1),
+                  updatedNode
+                ),
+              }
+          : node
+      );
+    };
+
     return {
       addNodeToPath,
       removeNode,
+      updateNodeInPath,
     };
   },
 });
 
 export const useTreeActions = () => {
   const [tree, setTree] = useRecoilState(treeState);
-  const { addNodeToPath, removeNode } = useRecoilValue(treeActions);
+  const { addNodeToPath, removeNode, updateNodeInPath } =
+    useRecoilValue(treeActions);
 
   const handleCreate = (
     path: string,
@@ -114,9 +140,16 @@ export const useTreeActions = () => {
     );
   };
 
+  const handleUpdate = (path: string, updatedData: Partial<FileNode>) => {
+    setTree((prevTree) =>
+      updateNodeInPath(prevTree, path.split("/").filter(Boolean), updatedData)
+    );
+  };
+
   return {
     tree,
     handleCreate,
     handleDelete,
+    handleUpdate,
   };
 };

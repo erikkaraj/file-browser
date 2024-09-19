@@ -5,9 +5,11 @@ import { RecoilRoot } from "recoil";
 
 const App: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [targetPath, setTargetPath] = useState<string>("");
 
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = (file: File, targetPath: string) => {
     setSelectedFile(file);
+    setTargetPath(targetPath);
   };
 
   return (
@@ -17,7 +19,9 @@ const App: React.FC = () => {
           <TreeView onSelectFile={handleFileSelect} />
         </div>
         <div className="fileviewer-container w-2/3 bg-white p-4">
-          {selectedFile && <FileViewer file={selectedFile} />}
+          {selectedFile && (
+            <FileViewer file={selectedFile} targetPath={targetPath} />
+          )}
         </div>
       </div>
     </RecoilRoot>

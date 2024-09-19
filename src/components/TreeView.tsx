@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useRecoilState } from "recoil";
 import { treeState, useTreeActions } from "../state/treeAtom";
 import { FileNode } from "../utils/fileUtils";
-import { ArrowIcon, FileIcon, FolderIcon } from "../utils/svgIcons";
+import { ArrowIcon, FileIcon, FolderIcon, MinusIcon } from "../utils/svgIcons";
 import { FileCreationModal } from "../modal/FileCreationModal";
 import { FolderCreationModal } from "../modal/FolderCreationModal";
 
 type TreeViewProps = {
-  onSelectFile: (file: File) => void;
+  onSelectFile: (file: File, targetPath: string) => void;
 };
 const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
   const [tree] = useRecoilState(treeState);
@@ -28,19 +28,15 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
     });
   };
 
-  const handleFileClick = (node: FileNode) => {
+  const handleFileClick = (node: FileNode, path: string) => {
     if (node.type !== "folder") {
-      // const file = new File([node.content || ""], node.name, {
-      //   type: node.type,
-      // });
       const blobContent = new Blob([node.content || ""], {
         type: node.type,
       });
       const file = new File([blobContent], node.name, {
         type: blobContent.type,
       });
-      console.log(file);
-      onSelectFile(file);
+      onSelectFile(file, path);
     }
   };
 
@@ -81,13 +77,13 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
     return filterNodes(nodes);
   };
 
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isFileModalOpen, setFileModalOpen] = useState(false);
   const [isFolderModalOpen, setFolderModalOpen] = useState(false);
   const [targetPath, setTargetPath] = useState<string>("");
 
   const handleCreateFileModal = (path: string) => {
     setTargetPath(path);
-    setModalOpen(true);
+    setFileModalOpen(true);
   };
 
   const handleCreateFolderModal = (path: string) => {
@@ -97,16 +93,6 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
 
   const renderTree = (nodes: FileNode[], path = "") => (
     <>
-      <FileCreationModal
-        isOpen={isModalOpen}
-        targetPath={targetPath}
-        onClose={() => setModalOpen(false)}
-      />
-      <FolderCreationModal
-        isOpen={isFolderModalOpen}
-        targetPath={targetPath}
-        onClose={() => setFolderModalOpen(false)}
-      />
       <ul className="list-none pl-4">
         {nodes.map((node) => {
           const currentPath = path ? `${path}/${node.name}` : node.name;
@@ -119,9 +105,13 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
                       onClick={() => toggleNode(currentPath)}
                       className="flex items-center cursor-pointer space-x-2"
                     >
-                      <ArrowIcon isOpen={expandedNodes.has(currentPath)} />
+                      {node.children?.length ? (
+                        <ArrowIcon isOpen={expandedNodes.has(currentPath)} />
+                      ) : (
+                        <MinusIcon />
+                      )}
                       <FolderIcon />
-                      <span>{node.name}</span>
+                      <div>{node.name}</div>
                     </div>
                     <div className="ml-auto hidden group-hover:flex space-x-1 absolute right-0">
                       <button
@@ -130,6 +120,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
                           handleCreateFileModal(currentPath);
                         }}
                         className="bg-blue-500 text-white px-2 py-1 rounded-md"
+                        data-testid={`add-file-${currentPath}`}
                       >
                         Add File
                       </button>
@@ -139,6 +130,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
                           handleCreateFolderModal(currentPath);
                         }}
                         className="bg-blue-500 text-white px-2 py-1 rounded-md"
+                        data-testid={`add-folder-${currentPath}`}
                       >
                         Add Folder
                       </button>
@@ -148,6 +140,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
                           handleDelete(currentPath);
                         }}
                         className="bg-red-500 text-white px-2 py-1 rounded-md"
+                        data-testid={`delete-${currentPath}`}
                       >
                         Delete
                       </button>
@@ -156,11 +149,11 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
                 ) : (
                   <div className="w-full flex items-center space-x-2 relative">
                     <div
-                      onClick={() => handleFileClick(node)}
+                      onClick={() => handleFileClick(node, currentPath)}
                       className="flex items-center cursor-pointer space-x-2"
                     >
                       <FileIcon />
-                      <span>{node.name}</span>
+                      <div>{node.name}</div>
                     </div>
                     <div className="ml-auto hidden group-hover:flex space-x-1 absolute right-0">
                       <button
@@ -169,6 +162,7 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
                           handleDelete(currentPath);
                         }}
                         className="bg-red-500 text-white px-2 py-1 rounded-md"
+                        data-testid={`delete-${currentPath}`}
                       >
                         Delete
                       </button>
@@ -192,6 +186,16 @@ const TreeView: React.FC<TreeViewProps> = ({ onSelectFile }) => {
 
   return (
     <div className="treeview">
+      <FileCreationModal
+        isOpen={isFileModalOpen}
+        targetPath={targetPath}
+        onClose={() => setFileModalOpen(false)}
+      />
+      <FolderCreationModal
+        isOpen={isFolderModalOpen}
+        targetPath={targetPath}
+        onClose={() => setFolderModalOpen(false)}
+      />
       <div className="mb-4 p-2">
         <input
           type="text"
