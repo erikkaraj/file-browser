@@ -55,7 +55,7 @@ The initial file structure and all functions for creating, deleting, and modifyi
 
 ### Prerequisites
 
-- **Node.js**: Ensure that Node.js and npm are installed. You can download them from [here](https://nodejs.org/).
+- **Node.js**: Ensure that Node.js and npm are installed. This project runs with node v16.16.0.
 - **Package Manager**: This project uses npm as the package manager.
 
 ### 1. **Installation**
